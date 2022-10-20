@@ -79,11 +79,29 @@ namespace Demo.Core.Api.Controllers
             return response;
         }
 
-        [HttpGet]
-        [Route("employees/Details/{id}")]
-        public Employee Details(int id)
+        [HttpPut]
+        [Route("employees/Update")]
+        public async Task<int> Update([FromBody] Employee employee)
         {
-            return null;
+            DemoContext empCtx = new DemoContext();
+            int response = await empCtx.UpdateEmployee(employee);
+            return response;
+
+        }
+        [HttpGet]
+        [Route("employees/{id}")]
+        public async Task<APIResponse> Index(int id)
+        {
+            DemoContext empCtx = new DemoContext();
+            var data = await empCtx.GetEmployeeData(id);
+
+            APIResponse response = new APIResponse
+            {
+                Success = "true",
+                Message = "Retrieved Successfully",
+                Data = new Employee[] { data },
+            };
+            return response;
         }
 
         [HttpGet]
@@ -112,10 +130,12 @@ namespace Demo.Core.Api.Controllers
 
         }
         [HttpDelete]
-        [Route("employees/Delete/{id}")]
-        public int Delete(int id)
+        [Route("employees/delete/{id}")]
+        public async Task<int> Delete(int id)
         {
-            return 0;
+            DemoContext empCtx = new DemoContext();
+            var data = await empCtx.DeleteEmployee(id);
+            return data;
         }
 
     }

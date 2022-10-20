@@ -19,8 +19,9 @@ type Props<EmployeeProps> =
     & RouteComponentProps<{ mode: string }>
 
 class Employee implements EmployeeStore.Employee {
+    id=0;
     employeeId= "";
-    name? = "";
+    employeeName? = "";
     gender?= "";
     city?= "";
     department?="";
@@ -29,6 +30,7 @@ interface FetchEmployeeDataState {
     empList: Employee,
     loading: boolean,
     title: string,
+    cityList: [],
 }
 
 
@@ -39,8 +41,14 @@ export class AddEmployee extends React.Component<Props<EmployeeProps>, FetchEmpl
         super(props);
        
         this.state = {
-            title: "", loading: true, empList: new Employee
+            title: "", loading: true, empList: new Employee, cityList:[]
         };
+
+        fetch('employee/cities')
+            .then(response => response.json())
+            .then(cities => {
+                this.setState({ cityList: cities.data });
+            });
 
         //fetch('api/Employee/GetCityList')
         //    .then(response => response.json() as Promise<Array<any>>)
@@ -48,20 +56,23 @@ export class AddEmployee extends React.Component<Props<EmployeeProps>, FetchEmpl
         //        this.setState({ cityList: data });
         //    });
         const code:any = props.match.params;
-        const empid:string = code.empid;
+        const empid:string = code.empid==undefined?0:code.empid;
         // This will set state for Edit employee
-        if (empid != null) {
-            fetch('employee/' + empid)
+        if (code.empid > 0) {
+            fetch('employee/detail/' + empid)
                 .then(response => response.json() as Promise<EmployeeStore.Employee>)
                 .then(data => {
-                    this.setState({ title: "Edit", loading: false, empList: data });
+                    this.setState({
+                        title: "Edit", loading: false, empList: data});
                 });
         }
 
         // This will set state for Add employee
         else {
             this.state = {
-                title: "Create", loading: false, empList: new Employee };
+                title: "", loading: false, empList: new Employee, cityList: this.state.cityList
+            };
+
         }
 
         // This binding is necessary to make "this" work in the callback
@@ -91,7 +102,7 @@ export class AddEmployee extends React.Component<Props<EmployeeProps>, FetchEmpl
         const payload = DomainConverter.getPayload<Employee>(new Employee, formData);
 
         // PUT request for Edit employee.
-        if (this.state.empList.employeeId) {
+        if (this.state.empList.id > 0) {
             fetch('employee/update', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -104,6 +115,7 @@ export class AddEmployee extends React.Component<Props<EmployeeProps>, FetchEmpl
         }
         // POST request for Add employee.
         else {
+            payload.id = 0;
             fetch('employee/create', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -111,7 +123,6 @@ export class AddEmployee extends React.Component<Props<EmployeeProps>, FetchEmpl
 
             }).then((response) => response.json())
                 .then((responseJson) => {
-                    console.log('responseJson' , responseJson)
                     this.props.history.push("/employee");
                 })
         }
@@ -126,20 +137,25 @@ export class AddEmployee extends React.Component<Props<EmployeeProps>, FetchEmpl
     // Returns the HTML Form to the render() method.
     private renderCreateForm() {
         return (
-            <form  onSubmit={this.handleSave} >
+            <form onSubmit={this.handleSave} >
+                <input type="text" hidden name="id" defaultValue={this.state.empList.id} />
+
                 <div className="form-group row" >
-                    <input type="hidden" name="employeeId" value={this.state.empList.employeeId} />
+                    <label className=" control-label col-md-12" htmlFor="EmployeeId">Employee Id</label>
+                    <div className="col-md-4">
+                        <input className="form-control" type="text" contentEditable={false} name="employeeId" defaultValue={this.state.empList.employeeId ? this.state.empList.employeeId.trim():""} />
+                    </div>
                 </div>
                 < div className="form-group row" >
-                    <label className=" control-label col-md-12" htmlFor="Name">Name</label>
+                    <label className=" control-label col-md-12" htmlFor="employeeName">Name</label>
                     <div className="col-md-4">
-                        <input className="form-control" type="text" name="name" defaultValue={this.state.empList.name} required />
+                        <input className="form-control" type="text" name="employeeName" defaultValue={this.state.empList.employeeName?this.state.empList.employeeName.trim():""} required />
                     </div>
                 </div >
                 <div className="form-group row">
                     <label className="control-label col-md-12" htmlFor="Gender">Gender</label>
                     <div className="col-md-4">
-                        <select className="form-control" data-val="true" name="gender" defaultValue={this.state.empList.gender} required>
+                        <select className="form-control" data-val="true" name="gender" defaultValue={this.state.empList.gender? this.state.empList.gender.trim():""} required>
                             <option value="">-- Select Gender --</option>
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
@@ -149,12 +165,19 @@ export class AddEmployee extends React.Component<Props<EmployeeProps>, FetchEmpl
                 <div className="form-group row">
                     <label className="control-label col-md-12" htmlFor="Department" >Department</label>
                     <div className="col-md-4">
-                        <input className="form-control" type="text" name="department" defaultValue={this.state.empList.department} required />
+                        <input className="form-control" type="text" name="department" defaultValue={this.state.empList.department ? this.state.empList.department.trim():""} required />
                     </div>
                 </div>
                 <div className="form-group row">
                     <label className="control-label col-md-12" htmlFor="City">City</label>
-                   
+                    <div className="col-md-4">
+                        <select className="form-control" data-val="true" name="city" defaultValue={this.state.empList.city ? this.state.empList.city.trim():""} required>
+                            <option value="">-- Select City --</option>
+                            {this.state.cityList.map((city : any) =>
+                                <option key={city.name} value={city.Name}>{city.name}</option>
+                            )}
+                        </select>
+                    </div>
                 </div >
                 <div className="form-group">
                     <button type="submit" className="btn btn-default">Save</button>

@@ -16,7 +16,7 @@ export class DomainConverter {
     static getPayload<T>(obj: T, formData: FormData) {
         const payload: any = {};
         for (var key in obj) {
-            payload[key.toString()] = formData.get(key.toString());
+            payload[key.toString()] = formData.get(key.toString())?.toString().trim();
         }
         return payload;
     }

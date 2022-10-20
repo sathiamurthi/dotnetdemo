@@ -6,7 +6,7 @@ import { AppThunkAction } from './';
 
 
 export interface Employee {
-    Id: number;
+    id: number;
     employeeId: string;
     employeeName?: string;
     gender?: string;

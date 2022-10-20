@@ -15,7 +15,7 @@ namespace Demo.Core.Domain.Store
         {
             try
             {
-                return db.Employee.ToList();
+                return db.Employee.OrderByDescending(x=>x.Id).ToList();
             }
             catch
             {

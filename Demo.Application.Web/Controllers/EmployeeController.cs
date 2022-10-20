@@ -42,6 +42,18 @@ namespace Demo.Application.Web.Controllers
             return model;
         }
 
+
+        [HttpGet]
+        [Route("detail/{id}")]
+        public async Task<Employee> Details([FromRoute] string id)
+        {
+            HttpClient client = new HttpClient();
+            var model = await client.GetFromJsonAsync<APIResponse>(apiUrl + "employees/" + id);
+            var json = Newtonsoft.Json.JsonConvert.DeserializeObject<Employee>(model.Data[0].ToString());
+            return json;
+        }
+
+
         [HttpPost]
         [Route("create")]
         public async Task<int> Create([FromBody] Employee employee)
@@ -55,34 +67,40 @@ namespace Demo.Application.Web.Controllers
             return 0;
         }
 
-        [HttpGet]
-        [Route("{id}")]
-        public Employee Details([FromRoute] string id)
-        {
-            return new Employee
-            {
-                EmployeeId = "Slade Wilcox",
-                Name = "Ulla Diaz",
-                City = "Steven Williamson",
-                Department = "Brian Gibson",
-                Gender = "YHT28GNF2CY"
-            };
-        }
-
         [HttpPut]
         [Route("update")]
-        public int Edit([FromBody] Employee employee)
+        public async Task<int> Update([FromBody] Employee employee)
         {
-            return 0;
+            HttpClient client = new HttpClient();
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(employee);
+            var data = new System.Net.Http.StringContent(json, Encoding.UTF8, "application/json");
+            var model = await client.PutAsync(apiUrl + "employees/Update", data);
+            //IEnumerable<WeatherForecast> forecasts =  client.GetAsync("http://localhost:5263/WeatherForecast/weatherforecast") as IEnumerable<WeatherForecast>;
+
+            return (int) model.StatusCode;
         }
 
         [HttpDelete]
-        [Route("api/Employee/Delete/{id}")]
-        public int Delete(int id)
+        [Route("delete/{id}")]
+        public async Task<int> Delete([FromRoute] string id)
         {
+            HttpClient client = new HttpClient();
+            var model = await client.DeleteAsync(apiUrl + "employees/delete/" + id);
+            //IEnumerable<WeatherForecast> forecasts =  client.GetAsync("http://localhost:5263/WeatherForecast/weatherforecast") as IEnumerable<WeatherForecast>;
+
             return 0;
         }
 
-       
+        [HttpGet]
+        [Route("cities")]
+        public async Task<APIResponse> Cities()
+        {
+            HttpClient client = new HttpClient();
+            var model = await client.GetFromJsonAsync<APIResponse>(apiUrl + "cities");
+            //IEnumerable<WeatherForecast> forecasts =  client.GetAsync("http://localhost:5263/WeatherForecast/weatherforecast") as IEnumerable<WeatherForecast>;
+
+            return model;
+        }
+
     }
 }

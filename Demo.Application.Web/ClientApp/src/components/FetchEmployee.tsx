@@ -64,14 +64,13 @@ export class FetchEmployee extends React.Component<Props<EmployeeProps>, FetchEm
         if (!confirm("Do you want to delete employee with Id: " + id))
             return;
         else {
-            fetch('api/Employee/Delete/' + id, {
-                method: 'delete'
+            fetch('employee/delete/' + id, {
+                method: 'Delete'
             }).then(data => {
-                this.setState(
-                    {
-                        empList: this.state.empList.filter((rec) => {
-                            return (rec.employeeId != id);
-                        })
+                fetch('employee')
+                    .then(response => response.json() as Promise<EmployeeStore.APIResponse>)
+                    .then(data => {
+                        this.setState({ empList: data.data as EmployeeStore.Employee[], loading: false });
                     });
             });
         }
@@ -96,7 +95,7 @@ export class FetchEmployee extends React.Component<Props<EmployeeProps>, FetchEm
             </thead>
             <tbody>
                 {this.state.empList.map((emp: EmployeeStore.Employee) =>
-                    <tr key={emp.employeeId}>
+                    <tr key={emp.id.toString()}>
                         <td></td>
                         <td>{emp.employeeId}</td>
                         <td>{emp.employeeName}</td>
@@ -104,8 +103,8 @@ export class FetchEmployee extends React.Component<Props<EmployeeProps>, FetchEm
                         <td>{emp.department}</td>
                         <td>{emp.city}</td>
                         <td>
-                            <a className="action" onClick={(id) => this.handleEdit(emp.employeeId)}>Edit</a>  |
-                            <a className="action" onClick={(id) => this.handleDelete(emp.employeeId)}>Delete</a>
+                            <a className="action" onClick={(id) => this.handleEdit(emp.id.toString())}>Edit</a>  |
+                            <a className="action" onClick={(id) => this.handleDelete(emp.id.toString())}>Delete</a>
                         </td>
                     </tr>
                 )}

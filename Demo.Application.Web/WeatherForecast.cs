@@ -15,10 +15,11 @@ namespace Demo.Application.Web
     public partial class Employee
     {
         public string EmployeeId { get; set; }
-        public string Name { get; set; }
+        public string EmployeeName { get; set; }
         public string City { get; set; }
         public string Department { get; set; }
         public string Gender { get; set; }
+        public int Id { get; set; }
     }
 
     // API shakehand object
