@@ -4,6 +4,10 @@ import { Link, NavLink } from 'react-router-dom';
 import * as EmployeeStore from '../store/Employee';
 import { ApplicationState } from '../store';
 import { connect } from 'react-redux';
+import ModalComponent from './Model_Popup';
+import { useState } from 'react';
+
+useState
 
 type EmployeeProps =
     EmployeeStore.EmployeeState // ... state we've requested from the Redux store
@@ -20,31 +24,47 @@ type Props<EmployeeProps>  =
 interface FetchEmployeeDataState {
     empList: EmployeeStore.Employee[],
     loading: boolean,
-    title:string,
+    title: string,
+    showModel: boolean,
 }
 
 export class FetchEmployee extends React.Component<Props<EmployeeProps>, FetchEmployeeDataState>  {
-
     constructor(props: Props<EmployeeProps>) {
         super(props);
-        this.state = { empList:[],title:"name", loading: true };
+        this.state = { empList:[],title:"name", loading: true , showModel:false};
 
-        fetch('employee')
-            .then(response => response.json() as Promise<EmployeeStore.APIResponse>)
-            .then(data => {
-                this.setState({ empList: data.data as EmployeeStore.Employee[] , loading: false });
-            });
+        this.getEmployees();
 
         // This binding is necessary to make "this" work in the callback
         this.handleDelete = this.handleDelete.bind(this);
         this.handleEdit = this.handleEdit.bind(this);
-
+       
+    }
+    getEmployees() {
+        this.setState({
+            loading: true
+        });
+        fetch('api/employee')
+            .then(response => response.json() as Promise<EmployeeStore.APIResponse>)
+            .then(data => {
+                this.setState({ loading: false, empList: data.data as EmployeeStore.Employee[] })
+            });
+    }
+    reload() {
+        window.location.reload();
+    }
+    handleClick = () => {
     }
     private mode: boolean = false;
         public componentDidMount() {
     }
+    handleModal() {
+        this.setState({ showModel: !this.state.showModel })
+    }
 
-    public render() {
+    
+
+     public render() {
         let contents = this.state.loading
             ? <p><em>Loading...</em></p>
             : this.renderEmployeeTable();
@@ -54,6 +74,7 @@ export class FetchEmployee extends React.Component<Props<EmployeeProps>, FetchEm
             <p>This component demonstrates fetching Employee data from the server.</p>
             <p>
                 <Link to="/addemployee">Create New</Link>
+                <ModalComponent RenderEmployees={this.reload}/>
             </p>
             {contents}
         </div>;

@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.DataProtection.KeyManagement;
 namespace Demo.Application.Web.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class EmployeeController : Controller
     {
 

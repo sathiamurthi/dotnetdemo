@@ -18,6 +18,9 @@ type Props<EmployeeProps> =
     & RouteComponentProps<{ startDateIndex: string }> // ... plus incoming routing parameters
     & RouteComponentProps<{ mode: string }>
 
+    
+
+
 class Employee implements EmployeeStore.Employee {
     id=0;
     employeeId= "";
@@ -39,12 +42,11 @@ export class AddEmployee extends React.Component<Props<EmployeeProps>, FetchEmpl
 
     constructor(props: Props<EmployeeProps>) {
         super(props);
-       
         this.state = {
             title: "", loading: true, empList: new Employee, cityList:[]
         };
 
-        fetch('employee/cities')
+        fetch('api/employee/cities')
             .then(response => response.json())
             .then(cities => {
                 this.setState({ cityList: cities.data });
@@ -55,11 +57,11 @@ export class AddEmployee extends React.Component<Props<EmployeeProps>, FetchEmpl
         //    .then(data => {
         //        this.setState({ cityList: data });
         //    });
-        const code:any = props.match.params;
+        const code: any = props.match!=undefined? props.match.params: { };
         const empid:string = code.empid==undefined?0:code.empid;
         // This will set state for Edit employee
         if (code.empid > 0) {
-            fetch('employee/detail/' + empid)
+            fetch('api/employee/detail/' + empid)
                 .then(response => response.json() as Promise<EmployeeStore.Employee>)
                 .then(data => {
                     this.setState({
@@ -103,7 +105,7 @@ export class AddEmployee extends React.Component<Props<EmployeeProps>, FetchEmpl
 
         // PUT request for Edit employee.
         if (this.state.empList.id > 0) {
-            fetch('employee/update', {
+            fetch('api/employee/update', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
@@ -116,14 +118,14 @@ export class AddEmployee extends React.Component<Props<EmployeeProps>, FetchEmpl
         // POST request for Add employee.
         else {
             payload.id = 0;
-            fetch('employee/create', {
+            fetch('api/employee/create', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
 
             }).then((response) => response.json())
                 .then((responseJson) => {
-                    this.props.history.push("/employee");
+                    this.props.Model();
                 })
         }
     }

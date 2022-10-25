@@ -1,0 +1,25 @@
+﻿body, html {
+    margin: 0;
+    padding: 0;
+}
+
+.custom_modal {
+    top: 50%;
+    left: 50%;
+    outline: none;
+    padding: 25px;
+    overflow: auto;
+    position: fixed;
+    border-radius: 3px;
+    transform: translate(-50%, -50%);
+    background: rgb(236, 233, 233);
+}
+
+.custom_overlay {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.78);
+}

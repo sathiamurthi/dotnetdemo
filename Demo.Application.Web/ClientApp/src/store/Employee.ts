@@ -24,9 +24,10 @@ export interface APIResponse {
 
 
 export interface EmployeeState {
-    isLoading: boolean;
+    isLoading?: boolean;
     startDateIndex?: number;
-    employees: Employee[];
+    employees?: Employee[];
+    Model(): void;
 }
 
 // -----------------
@@ -57,7 +58,7 @@ export const actionCreators = {
         // Only load data if it's something we don't already have (and are not already loading)
         const appState = getState();
         if (appState && appState.employees && startDateIndex !== appState.employees.startDateIndex) {
-            fetch(`employee`)
+            fetch(`api/employee`)
                 .then(response => response.json() as Promise<Employee[]>)
                 .then(data => {
                     dispatch({ type: 'RECEIVE_EMPLOYEE_DATA', startDateIndex: startDateIndex, employees: data });
