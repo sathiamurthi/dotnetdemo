@@ -73,7 +73,7 @@ namespace Demo.Core.Domain.Store
         {
             try
             {
-                Employee emp = db.Employee.Find(id);
+                Employee? emp = db.Employee.Find(id);
                 db.Employee.Remove(emp);
                 await db.SaveChanges();
                 return 1;

@@ -85,14 +85,10 @@ export class FetchEmployee extends React.Component<Props<EmployeeProps>, FetchEm
         if (!confirm("Do you want to delete employee with Id: " + id))
             return;
         else {
-            fetch('employee/delete/' + id, {
+            fetch('api/employee/delete/' + id.toString(), {
                 method: 'Delete'
             }).then(data => {
-                fetch('employee')
-                    .then(response => response.json() as Promise<EmployeeStore.APIResponse>)
-                    .then(data => {
-                        this.setState({ empList: data.data as EmployeeStore.Employee[], loading: false });
-                    });
+                this.getEmployees();
             });
         }
     }
