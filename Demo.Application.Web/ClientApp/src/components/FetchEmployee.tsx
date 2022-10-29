@@ -51,7 +51,7 @@ export class FetchEmployee extends React.Component<Props<EmployeeProps>, FetchEm
             });
     }
     reload() {
-        window.location.reload();
+        //window.location.reload();
     }
     handleClick = () => {
     }
