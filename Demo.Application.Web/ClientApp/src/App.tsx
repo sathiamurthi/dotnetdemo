@@ -16,6 +16,7 @@ export default () => (
         <Route path='/counter' component={Counter} />
         <Route path='/fetch-data/:startDateIndex?' component={FetchData} />
         <Route path='/employee/:startDateIndex?' component={FetchEmployee} />
+        <Route path='/employee?' component={FetchEmployee} />
         <Route path='/editemployee/edit/:empid?' component={AddEmployee} />
         <Route path='/addemployee' component={AddEmployee} />
 

@@ -43,7 +43,8 @@ class FetchData extends React.PureComponent<WeatherForecastProps> {
     return (
       <table className='table table-striped' aria-labelledby="tabelLabel">
         <thead>
-          <tr>
+            <tr>
+             <th>Download All<input type="checkbox" name="downloadAll"/></th>
             <th>Date</th>
             <th>Temp. (C)</th>
             <th>Temp. (F)</th>
@@ -51,12 +52,14 @@ class FetchData extends React.PureComponent<WeatherForecastProps> {
           </tr>
         </thead>
         <tbody>
-          {this.props.forecasts.map((forecast: WeatherForecastsStore.WeatherForecast) =>
-            <tr key={forecast.date}>
+                {this.props.forecasts.map((forecast: WeatherForecastsStore.WeatherForecast) =>
+
+                    <tr key={forecast.date}>
+                        <td><input type="checkbox" name={"demo" + forecast.id.toString()} value={forecast.id.toString() }/></td>
               <td>{forecast.date}</td>
               <td>{forecast.temperatureC}</td>
               <td>{forecast.temperatureF}</td>
-              <td>{forecast.summary}</td>
+               <td><a href={forecast.downloadUrl}>{forecast.summary}</a> </td>
             </tr>
           )}
         </tbody>
@@ -65,7 +68,7 @@ class FetchData extends React.PureComponent<WeatherForecastProps> {
   }
 
   private renderPagination() {
-    const prevStartDateIndex = (this.props.startDateIndex || 0) - 5;
+      const prevStartDateIndex = this.props.startDateIndex==0?0:(this.props.startDateIndex || 0) - 5;
     const nextStartDateIndex = (this.props.startDateIndex || 0) + 5;
 
     return (

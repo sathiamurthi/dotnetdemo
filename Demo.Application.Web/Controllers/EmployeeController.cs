@@ -34,10 +34,10 @@ namespace Demo.Application.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<APIResponse> Get()
+        public async Task<APIResponse> Get([FromQuery] int startPage)
         {
             HttpClient client = new HttpClient();
-            dynamic model = await client.GetFromJsonAsync<APIResponse>(apiUrl + "employees");
+            dynamic model = await client.GetFromJsonAsync<APIResponse>(apiUrl + "employees" + "?" + "startPage=" + startPage.ToString());
             //IEnumerable<WeatherForecast> forecasts =  client.GetAsync("http://localhost:5263/WeatherForecast/weatherforecast") as IEnumerable<WeatherForecast>;
             return model;
         }

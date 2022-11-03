@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.StaticFiles;
 using System.Net;
 using System.Net.Http.Headers;
 using ICSharpCode.SharpZipLib.Zip;
+using Demo.Core.Api.Extensions;
+using static System.Net.WebRequestMethods;
 
 namespace Demo.Core.Api.Controllers
 {
@@ -34,15 +36,20 @@ namespace Demo.Core.Api.Controllers
             {
                 string folderPath = @"Files";
                 DirectoryInfo d = new DirectoryInfo(folderPath);
-                FileInfo[] Files = d.GetFiles();
+                IList<FileInfo> Files = d.GetFiles().ToList();
                 IList<FileDetail> files = new List<FileDetail>();
                 Dictionary<string, Stream> streams = new Dictionary<string, Stream>();
 
-                foreach (FileInfo file in Files)
+                Parallel.ForEach(Files , file=>
                 {
                     streams.Add(file.Name, new FileStream(Path.Combine(folderPath, file.Name), FileMode.Open, FileAccess.Read));
+                });
+               
+                //foreach (FileInfo file in Files)
+                //{
+                //    streams.Add(file.Name, new FileStream(Path.Combine(folderPath, file.Name), FileMode.Open, FileAccess.Read));
 
-                }
+                //}
                 HttpContent? Content = new StreamContent(PackageManyZip(streams));
                 const string contentType = "application/zip";
                 HttpContext.Response.ContentType = contentType;
@@ -140,7 +147,7 @@ namespace Demo.Core.Api.Controllers
                     Type = file.Extension,
                     CreationTime = file.CreationTime,
                     Description = "Demo file download",
-                    Filelocation = GetBaseUrl(Request) + "/download/" + i.ToString(),
+                    Filelocation = Helper.GetBaseUrl(Request) + "/download/" + i.ToString(),
                     Id = i++
 
                 };
@@ -151,11 +158,6 @@ namespace Demo.Core.Api.Controllers
             return files;
 
         }
-        private string GetBaseUrl(HttpRequest request)
-        {
-            // SSL offloading
-            var scheme = request.Host.Host.Contains("localhost") ? request.Scheme : "https";
-            return $"{scheme}://{request.Host}{request.PathBase}";
-        }
+       
     }
 }

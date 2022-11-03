@@ -59,6 +59,9 @@ dlldata.c
 *.tli
 *.tlh
 *.tmp
+*.pdf
+*.pptx
+*.zip
 *.tmp_proj
 *.log
 *.vspscc

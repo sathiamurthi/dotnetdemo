@@ -12,6 +12,7 @@ export interface Employee {
     gender?: string;
     city?: string;
     department?: string;
+    downloadUrl?: string;
 }
 
 export interface APIResponse {

@@ -11,10 +11,13 @@ export interface WeatherForecastsState {
 }
 
 export interface WeatherForecast {
+    id: number;
     date: string;
     temperatureC: number;
     temperatureF: number;
     summary: string;
+    downloadUrl?: string;
+
 }
 
 // -----------------

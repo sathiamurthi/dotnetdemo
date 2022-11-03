@@ -13,5 +13,19 @@ namespace Demo.Core.Domain.Models
         public string City { get; set; }
         public string Department { get; set; }
         public string Gender { get; set; }
+        public string? DownloadUrl { get; set; }
+    }
+    public class Sorting<T>
+    {
+        public T sort { get; set; }
+    }
+    public class Filtering<T>
+    {
+        public T filter { get; set; }
+    }
+    public class Pagination
+    {
+        public int  pageStart { get; set; }
+        public int totalrecords { get; set; }
     }
 }

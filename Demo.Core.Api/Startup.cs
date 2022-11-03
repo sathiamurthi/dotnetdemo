@@ -20,6 +20,7 @@ namespace CqrsMediatrExample
         }
 
         public IConfiguration Configuration { get; }
+        string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -33,6 +34,17 @@ namespace CqrsMediatrExample
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
             services.AddProductModule();
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: MyAllowSpecificOrigins,
+                                  policy =>
+                                  {
+                                      policy.WithOrigins("http://localhost:3002")
+                                       .AllowAnyHeader()
+                                       .AllowAnyMethod()
+                                       .AllowAnyOrigin();
+                                  });
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -55,6 +67,7 @@ namespace CqrsMediatrExample
                 endpoints.MapControllers();
             });
             //app.UseSerilogRequestLogging();
+            app.UseCors(MyAllowSpecificOrigins);
         }
     }
 }

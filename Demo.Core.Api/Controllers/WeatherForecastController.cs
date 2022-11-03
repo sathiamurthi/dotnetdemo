@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Demo.Core.Domain.Models;
+using Demo.Core.Api.Extensions;
 
 namespace Demo.Application.Api.Controllers
 {
@@ -25,9 +26,11 @@ namespace Demo.Application.Api.Controllers
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
+                Id = index,
                 Date = DateTime.Now.AddDays(index),
                 TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
+                Summary = Summaries[rng.Next(Summaries.Length)],
+                DownloadUrl = Helper.GetBaseUrl(Request) + "/download/" + new Random().Next(1, 25).ToString()
             })
             .ToArray();
         }

@@ -1,11 +1,13 @@
 ﻿import * as React from 'react';
 import { RouteComponentProps, StaticContext } from 'react-router';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useParams } from 'react-router-dom';
 import * as EmployeeStore from '../store/Employee';
 import { ApplicationState } from '../store';
 import { connect } from 'react-redux';
 import ModalComponent from './Model_Popup';
 import { useState } from 'react';
+import queryString from 'query-string'
+
 
 useState
 
@@ -33,18 +35,25 @@ export class FetchEmployee extends React.Component<Props<EmployeeProps>, FetchEm
         super(props);
         this.state = { empList:[],title:"name", loading: true , showModel:false};
 
-        this.getEmployees();
+        this.getEmployees(0);
 
         // This binding is necessary to make "this" work in the callback
         this.handleDelete = this.handleDelete.bind(this);
         this.handleEdit = this.handleEdit.bind(this);
-       
     }
-    getEmployees() {
+   
+    private ensureDataFetched() {
+
+        const search = this.props.location.search; // could be '?foo=bar'
+        const params: any = queryString.parse(search);
+        let nextStartDateIndex = params?.startPage == undefined ? 1 : parseInt(params.startPage) + 1; // bar
+        this.getEmployees(nextStartDateIndex);
+    }
+    getEmployees(nextStartDateIndex:number) {
         this.setState({
             loading: true
         });
-        fetch('api/employee')
+        fetch(`api/employee?startPage=${nextStartDateIndex}`)
             .then(response => response.json() as Promise<EmployeeStore.APIResponse>)
             .then(data => {
                 this.setState({ loading: false, empList: data.data as EmployeeStore.Employee[] })
@@ -56,7 +65,9 @@ export class FetchEmployee extends React.Component<Props<EmployeeProps>, FetchEm
     handleClick = () => {
     }
     private mode: boolean = false;
-        public componentDidMount() {
+    public componentDidMount() {
+        this.ensureDataFetched();
+
     }
     handleModal() {
         this.setState({ showModel: !this.state.showModel })
@@ -65,9 +76,9 @@ export class FetchEmployee extends React.Component<Props<EmployeeProps>, FetchEm
     
 
      public render() {
-        let contents = this.state.loading
-            ? <p><em>Loading...</em></p>
-            : this.renderEmployeeTable();
+         let contents = this.state.loading
+             ? <p><em>Loading...</em></p>
+             : this.renderEmployeeTable() 
 
         return <div>
             <h1>Employee Data</h1>
@@ -76,7 +87,7 @@ export class FetchEmployee extends React.Component<Props<EmployeeProps>, FetchEm
                 <Link to="/addemployee">Create New</Link>
                 <ModalComponent RenderEmployees={this.reload}/>
             </p>
-            {contents}
+            { contents }
         </div>;
     }
 
@@ -88,7 +99,7 @@ export class FetchEmployee extends React.Component<Props<EmployeeProps>, FetchEm
             fetch('api/employee/delete/' + id.toString(), {
                 method: 'Delete'
             }).then(data => {
-                this.getEmployees();
+                this.getEmployees(0);
             });
         }
     }
@@ -103,6 +114,7 @@ export class FetchEmployee extends React.Component<Props<EmployeeProps>, FetchEm
             <thead>
                 <tr>
                     <th></th>
+                    <th><a href="http://localhost:5263/download/zip">Download Zip</a></th>
                     <th>EmployeeId</th>
                     <th>Name</th>
                     <th>Gender</th>
@@ -114,8 +126,9 @@ export class FetchEmployee extends React.Component<Props<EmployeeProps>, FetchEm
                 {this.state.empList.map((emp: EmployeeStore.Employee) =>
                     <tr key={emp.id.toString()}>
                         <td></td>
+                        <td><input type="checkbox" value={emp.id}/></td>
                         <td>{emp.employeeId}</td>
-                        <td>{emp.employeeName}</td>
+                        <td><a href={emp.downloadUrl}>{emp.employeeName}</a></td>
                         <td>{emp.gender}</td>
                         <td>{emp.department}</td>
                         <td>{emp.city}</td>
@@ -127,6 +140,20 @@ export class FetchEmployee extends React.Component<Props<EmployeeProps>, FetchEm
                 )}
             </tbody>
         </table>;
+    }
+    private renderPagination() {
+
+        const search = this.props.location.search; // could be '?foo=bar'
+        const params: any = queryString.parse(search);
+        let nextStartDateIndex = params?.startPage == undefined ? 1 : parseInt(params.startPage) + 1; // bar
+       
+        return (
+            <div className="d-flex justify-content-between">
+                <Link className='btn btn-outline-secondary btn-sm' to={`/employee?startPage=${parseInt(params.startPage) == 1 ? 1 :( parseInt(params.startPage) - 1)}`}>Previous</Link>
+                {this.props.isLoading && <span>Loading...</span>}
+                <Link className='btn btn-outline-secondary btn-sm' to={`/employee?startPage=${nextStartDateIndex}`}>Next</Link>
+            </div>
+        );
     }
 }
 

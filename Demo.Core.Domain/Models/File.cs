@@ -8,6 +8,8 @@ namespace Demo.Core.Domain.Models
 {
     public class FileDetail : Entity
     {
+
+        public int Id { set { Id = value; } }
         public string? Filelocation { get; set; }
         public string? Name { get; set; }
         public string? Description { get; set; }

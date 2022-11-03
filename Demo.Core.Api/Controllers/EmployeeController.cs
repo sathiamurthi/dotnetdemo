@@ -6,7 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 using Demo.Core.Domain.Models;
 using System.Reflection.Metadata.Ecma335;
 using Demo.Core.Domain.Store;
-
+using System.Linq;
+using System.Linq.Expressions;
+using Demo.Core.Api.Extensions;
+using Microsoft.Data.SqlClient;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Demo.Core.Api.Controllers
@@ -56,17 +59,32 @@ namespace Demo.Core.Api.Controllers
         }
         [HttpGet]
         [Route("employees")]
-        public APIResponse Index()
+        public APIResponse Index([FromQuery] Sorting<Employee> sorting, Filtering<Employee> filtering, Pagination pagination)
         {
+
+            Sort[] sortList = Helper.GetSorting(sorting.sort);
+            Filter[] filterList = Helper.GetFilter(filtering.filter);
+
             DemoContext empCtx = new DemoContext();
             var data = empCtx.GetAllEmployees();
-
+            data = EntityFrameworkExtensions.ApplyFilter(data.AsQueryable(), filterList);
+            data = EntityFrameworkExtensions.ApplySort(data.AsQueryable(), sortList);
+            // Assign File download option
+            //data = data.AsEnumerable().Take((pageStart==0?1:pageStart) * (totalRecords==0?10:totalRecords));     
+            Parallel.ForEach(data, item =>
+            {
+                item.DownloadUrl = Helper.GetBaseUrl(Request) + "/download/" + new Random().Next(1,25).ToString();
+            });
+            const string contentType = "application/json";
+            HttpContext.Response.ContentType = contentType;
             APIResponse response = new APIResponse
             {
                 Success = "true",
                 Message = "Retrieved Successfully",
-                Data = data.ToArray<Employee>(),
+                Data = data.ToArray<Employee>()
             };
+
+
             return response;
         }
 
