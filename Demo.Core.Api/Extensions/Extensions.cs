@@ -55,10 +55,10 @@ namespace Demo.Core.Api.Extensions
 
 
                 //var type = t.GetProperty(name.PropertyName);
-               // andCriteria.Add(c => type.GetValue(c).ToString().ToLower().Contains(name.PropertyValue));
+                // andCriteria.Add(c => type.GetValue(c).ToString().ToLower().Contains(name.PropertyValue));
                 //predicate = c => andCriteria.All(pred => pred(c));
             }
-            
+
             query = query.Where(predicate1);
 
             ////Expression whereExpression = null;
@@ -84,7 +84,7 @@ namespace Demo.Core.Api.Extensions
             //    .ForEach(filter =>
             //    {
 
-                   
+
             //       // ParameterExpression parameter = Expression.Parameter(typeof(TEntity), "item");
             //        Expression whereProperty = Expression.Property(parameter, filter.PropertyName);
             //        var toLower = Expression.Call(whereProperty, "ToLower", null);
@@ -101,6 +101,17 @@ namespace Demo.Core.Api.Extensions
             return query;
         }
 
+        public static (IQueryable<TEntity> employees, Pagination pagination) ApplyPagination<TEntity>(IQueryable<TEntity> employees, Pagination pagination)
+        {
+            int pageSize = pagination.recordsPerPage == 0 ? 5 : pagination.recordsPerPage;
+            Pagination page = new Pagination()
+            {
+                recordsPerPage = pageSize,
+                pageIndex = pagination.pageIndex == 0? 1:pagination.pageIndex,
+                totalRecords = employees.Count()
+            };
+            return (employees.Skip(pagination.pageIndex * pageSize).Take(pageSize), page);
+        }
     }
 
     public class Sort
@@ -112,7 +123,7 @@ namespace Demo.Core.Api.Extensions
     }
     public class SortQuery : Employee
     {
-        private new int Id {get;set;}
+        private new int Id { get; set; }
     }
 
     public static class Helper
@@ -126,10 +137,10 @@ namespace Demo.Core.Api.Extensions
             Type t = source.GetType();
             Sort[] sortlist = new Sort[t.GetProperties().Length];
             int i = 0;
-            foreach (var propInfo in t.GetProperties())
+            //foreach (var propInfo in t.GetProperties())
             {
-                if (propInfo.GetValue(source) == null) continue;
-                if (propInfo.PropertyType == typeof(string))
+               // if (propInfo.GetValue(source) == null) continue;
+                //if (propInfo.PropertyType == typeof(string))
                 {
 
                     sortlist[i] = new Sort();
@@ -137,19 +148,23 @@ namespace Demo.Core.Api.Extensions
                     PropertyInfo direction = sortlist[i].GetType().GetProperty("Direction");
                     PropertyInfo propertyIndex = sortlist[i].GetType().GetProperty("Index");
 
-                    object propVal = propInfo.GetValue(source, null);
+                    //PropertyInfo pi = t.GetProperty("propertyName");
+
+                    object sortByField = t.GetProperty("sortBy").GetValue(source, null);
+
+                    object sortDirection = t.GetProperty("sortOrder").GetValue(source, null);
+
                     propertyIndex.SetValue(sortlist[i], (i).ToString(), null);
-                    propertyName.SetValue(sortlist[i], propInfo.Name, null);
-                    propVal = propVal != null ? propVal : string.Empty;
-                    direction.SetValue(sortlist[i],GetValue(propVal.ToString()), null);
-                    i++;
+                    propertyName.SetValue(sortlist[i], sortByField, null);
+                    var propVal = sortDirection != null ? sortDirection : string.Empty;
+                    direction.SetValue(sortlist[i], GetValue(propVal.ToString()), null);
 
                 }
             }
             var count = sortlist.Where(c => c != null).Count();
             if (count == 0)
             {
-                sortlist[0] = new Sort() { PropertyName = "Id",Index="0",Direction= SortOrder.Ascending};
+                sortlist[0] = new Sort() { PropertyName = "Id", Index = "0", Direction = SortOrder.Ascending };
             }
 
             return sortlist.Where(c => c != null).ToArray();

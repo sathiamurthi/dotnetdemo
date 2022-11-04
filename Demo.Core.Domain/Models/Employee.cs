@@ -25,7 +25,9 @@ namespace Demo.Core.Domain.Models
     }
     public class Pagination
     {
-        public int  pageStart { get; set; }
-        public int totalrecords { get; set; }
+        public int  pageIndex { get; set; }
+        public int recordsPerPage { get; set; }
+        public int totalRecords { get; set; }
+
     }
 }

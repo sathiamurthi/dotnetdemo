@@ -34,17 +34,20 @@ namespace CqrsMediatrExample
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
             services.AddProductModule();
-            services.AddCors(options =>
-            {
-                options.AddPolicy(name: MyAllowSpecificOrigins,
-                                  policy =>
-                                  {
-                                      policy.WithOrigins("http://localhost:3002")
-                                       .AllowAnyHeader()
-                                       .AllowAnyMethod()
-                                       .AllowAnyOrigin();
-                                  });
-            });
+            //services.AddCors(options =>
+            //{
+            //    options.AddPolicy(name: MyAllowSpecificOrigins,
+            //                      policy =>
+            //                      {
+            //                          policy.WithOrigins()
+            //                           .AllowAnyHeader()
+            //                           .AllowAnyMethod()
+            //                           .AllowAnyOrigin()
+            //                           .AllowCredentials();
+            //                      });
+            //});
+            services.AddCors();
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -67,7 +70,14 @@ namespace CqrsMediatrExample
                 endpoints.MapControllers();
             });
             //app.UseSerilogRequestLogging();
-            app.UseCors(MyAllowSpecificOrigins);
+            // app.UseCors(MyAllowSpecificOrigins);
+            //app.UseCors(
+            //     .AllowAnyOrigin()
+            //     .AllowAnyMethod()
+            //     .AllowAnyHeader()
+            //     .AllowCredentials());
+
+            app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3002"));
         }
     }
 }

@@ -10,6 +10,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using Demo.Core.Api.Extensions;
 using Microsoft.Data.SqlClient;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Demo.Core.Api.Controllers
@@ -57,11 +59,11 @@ namespace Demo.Core.Api.Controllers
             _logger = logger;
 
         }
+
         [HttpGet]
         [Route("employees")]
-        public APIResponse Index([FromQuery] Sorting<Employee> sorting, Filtering<Employee> filtering, Pagination pagination)
+        public APIResponse Index([FromQuery] Sorting<SortParameter> sorting, Filtering<Employee> filtering, Pagination pagination)
         {
-
             Sort[] sortList = Helper.GetSorting(sorting.sort);
             Filter[] filterList = Helper.GetFilter(filtering.filter);
 
@@ -69,6 +71,7 @@ namespace Demo.Core.Api.Controllers
             var data = empCtx.GetAllEmployees();
             data = EntityFrameworkExtensions.ApplyFilter(data.AsQueryable(), filterList);
             data = EntityFrameworkExtensions.ApplySort(data.AsQueryable(), sortList);
+            var result = EntityFrameworkExtensions.ApplyPagination(data.AsQueryable(), pagination);
             // Assign File download option
             //data = data.AsEnumerable().Take((pageStart==0?1:pageStart) * (totalRecords==0?10:totalRecords));     
             Parallel.ForEach(data, item =>
@@ -77,12 +80,15 @@ namespace Demo.Core.Api.Controllers
             });
             const string contentType = "application/json";
             HttpContext.Response.ContentType = contentType;
-            APIResponse response = new APIResponse
+           
+
+        APIResponse response = new APIResponse
             {
                 Success = "true",
                 Message = "Retrieved Successfully",
-                Data = data.ToArray<Employee>()
-            };
+                Data = result.employees.ToArray<Employee>(),
+                Pagination = result.pagination
+        };
 
 
             return response;

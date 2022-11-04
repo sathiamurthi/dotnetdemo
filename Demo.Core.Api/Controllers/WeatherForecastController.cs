@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Demo.Core.Domain.Models;
 using Demo.Core.Api.Extensions;
+using Microsoft.AspNetCore.Cors;
 
 namespace Demo.Application.Api.Controllers
 {
@@ -19,6 +20,8 @@ namespace Demo.Application.Api.Controllers
         {
             _logger = logger;
         }
+
+        [EnableCors("AllowOrigin")]
 
         [HttpGet("weatherforecast")]
         public IEnumerable<WeatherForecast> Get()

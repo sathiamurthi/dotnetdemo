@@ -13,5 +13,8 @@ namespace Demo.Core.Domain.Models
         public dynamic[]? Data { get; set; }
         public string? ErrorCode { get; set; }
 
+        public Pagination Pagination { get; set; }
+
+
     }
 }
